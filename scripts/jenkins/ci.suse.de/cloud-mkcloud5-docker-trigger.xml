@@ -51,7 +51,8 @@
               <properties>cloudsource=develcloud5
 nodenumber=3
 want_docker=1
-want_sles12=1</properties>
+want_sles12=1
+mkcloudtarget=plain crowbarbackup crowbarrestore testsetup</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
           <projects>openstack-mkcloud</projects>
