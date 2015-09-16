@@ -50,7 +50,7 @@
               <properties>cloudsource=develcloud6
 controller_raid_volumes=2
 want_raidtype=raid1
-mkcloudtarget=plain testsetup</properties>
+mkcloudtarget=all_noreboot</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
           <projects>openstack-mkcloud</projects>
