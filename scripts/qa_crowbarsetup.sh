@@ -775,7 +775,8 @@ function get_crowbar_node()
 function get_sles12plus_node()
 {
     local target="suse-12.0"
-    iscloudver 6plus && target="suse-12.1"
+    iscloudver 6 && target="suse-12.1"
+    iscloudver 7plus && target="suse-12.2"
 
     knife search node "target_platform:$target" -a name | grep ^name: | cut -d : -f 2 | sort | tail -n 1 | sed 's/\s//g'
 }
@@ -1240,7 +1241,7 @@ function onadmin_add_cloud_repo()
         echo "$clouddescription"
         echo
     fi
-    ) >> /etc/motd
+    ) > /etc/motd
 
     echo $cloudsource > /etc/cloudsource
 }
@@ -1952,8 +1953,11 @@ function onadmin_allocate()
         )
 
     controller_os="suse-11.3"
-    if iscloudver 6plus; then
+    if iscloudver 6; then
         controller_os="suse-12.1"
+    fi
+    if iscloudver 7plus; then
+        controller_os="suse-12.2"
     fi
 
     echo "Setting first node to controller..."
@@ -2177,8 +2181,10 @@ function onadmin_crowbar_register()
     local inject
     local zyppercmd
 
-    if  iscloudver 6plus ; then
+    if iscloudver 6 ; then
         image="suse-12.1/x86_64/"
+    elif iscloudver 7plus ; then
+        image="suse-12.2/x86_64/"
     else
         if [ -n "$want_sles12" ] ; then
             image="suse-12.0"
