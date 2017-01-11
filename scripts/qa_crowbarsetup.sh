@@ -4215,6 +4215,69 @@ EOF
     exit $ret
 }
 
+function oncontroller_testpreupgrade
+{
+    . .openrc
+
+    # create cirros image
+    openstack image create --disk-format qcow2 --container-format bare --public --location http://download.cirros-cloud.net/0.3.4/cirros-0.3.4-x86_64-disk.img --os-image-api-version 1 cirros
+
+    # default security group: add icmp
+    openstack security group rule create default --proto icmp
+
+    for i in {1..3}; do
+        neutron net-create net$i
+        neutron subnet-create net$i 172.16.$i.0/24 --name subnet$i
+        neutron router-create router$i
+        neutron router-gateway-set router$i floating
+        neutron router-interface-add router$i subnet$i
+        nova boot --poll --flavor 1 --image cirros --security-groups default --nic net-id=`neutron net-show net$i -f value -c id` vm$i
+        openstack ip floating add `openstack ip floating create floating -f value -c ip` vm$i
+    done
+
+    # get VM FIPs
+    fips=$(openstack ip floating list -f value -c IP)
+    for fip in $fips; do
+        ping -c 1 -w 60 $fip || complain 120 "cannot reach test VM."
+    done
+
+    echo "test pre-upgrade successful."
+}
+
+function oncontroller_testpostupgrade
+{
+    . .openrc
+
+    fips=$(openstack ip floating list -f value -c IP)
+    for fip in $fips; do
+        ping -c 1 -w 60 $fip || complain 120 "cannot reach test VM."
+    done
+
+    echo "test post-upgrade successful."
+}
+
+function onadmin_testpreupgrade
+{
+    get_novacontroller
+    if [ -z "$novacontroller" ] || ! ssh $novacontroller true ; then
+        complain 62 "no nova controller - something went wrong"
+    fi
+    echo "openstack nova controller node:   $novacontroller"
+
+    oncontroller testpreupgrade
+}
+
+function onadmin_testpostupgrade
+{
+    get_novacontroller
+    if [ -z "$novacontroller" ] || ! ssh $novacontroller true ; then
+        complain 62 "no nova controller - something went wrong"
+    fi
+    echo "openstack nova controller node:   $novacontroller"
+
+    oncontroller testpostupgrade
+}
+
 function onadmin_addupdaterepo
 {
     pre_hook $FUNCNAME
