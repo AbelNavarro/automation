@@ -670,15 +670,11 @@ function testsetup
 function testpreupgrade
 {
     onadmin testpreupgrade
-
-    return 0
 }
 
 function testpostupgrade
 {
     onadmin testpostupgrade
-
-    return 0
 }
 
 function testname
